@@ -60,6 +60,12 @@ flowchart TD
 
 ```text
 Vat.frob(...)
+Vat.slip(...)
+Vat.flux(...)
+Vat.move(...)
+Vat.grab(...)
+Vat.suck(...)
+Vat.fold(...)
 GemJoin.join(...)
 GemJoin.exit(...)
 DaiJoin.join(...)
@@ -69,24 +75,32 @@ DaiJoin.exit(...)
 ### Main Rate / Liquidation Functions
 
 ```text
+Spot.poke(...)
 Jug.drip(...)
 Dog.bark(...)
 Clip.take(...)
 Pot.drip(...)
 Pot.join(...)
 Pot.exit(...)
+Vow.flog(...)
+Vow.heal(...)
+Vow.flop(...)
+Vow.flap(...)
 ```
 
 ## What This Repository Covers
 
 ```text
 Vault accounting
+Vat balance movement
+Oracle price update
 Collateral join / exit
 DAI join / exit
 Stability fee accrual
 Liquidation trigger
 Auction purchase
 Savings rate accounting
+Surplus and debt accounting
 ```
 
 ## Repository Structure
@@ -102,6 +116,10 @@ sky-dai-fork-local-review/
 |   +-- 05-dog-bark.md
 |   +-- 06-clip-take.md
 |   +-- 07-pot-dsr.md
+|   +-- 08-vat-balance-movement.md
+|   +-- 09-vat-grab-suck-fold.md
+|   +-- 10-spot-poke.md
+|   +-- 11-vow-surplus-debt.md
 +-- break-think/
     +-- README.md
 ```
