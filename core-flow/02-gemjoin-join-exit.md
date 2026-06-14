@@ -37,42 +37,40 @@ Vat collateral balance decreases
 GemJoin adapter -> external collateral token
 ```
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### Join Collateral
 
-```text
-External collateral transfer must match Vat collateral accounting.
+```solidity
+vat.slip(ilk, usr, int(wad));
+require(gem.transferFrom(msg.sender, address(this), wad), "GemJoin/failed-transfer");
 ```
 
-### Main Invariant 2
+This credits collateral inside `Vat` and pulls the external token into the adapter.
+
+Simple meaning:
 
 ```text
-Join must not work when the adapter is not live.
+external token enters adapter
+internal collateral balance increases
 ```
 
-### Main Invariant 3
+### Exit Collateral
+
+```solidity
+vat.slip(ilk, msg.sender, -int(wad));
+require(gem.transfer(usr, wad), "GemJoin/failed-transfer");
+```
+
+This removes internal collateral balance and sends external tokens out.
+
+Simple meaning:
 
 ```text
-Exit must not release more collateral than the user's internal Vat balance.
+internal collateral balance decreases
+external token leaves adapter
 ```
 
-## Additional Invariants
+### Adapter Role
 
-### Additional Invariant 1
-
-```text
-Token transfer failure must revert the operation.
-```
-
-### Additional Invariant 2
-
-```text
-The collateral type must be the intended ilk.
-```
-
-### Additional Invariant 3
-
-```text
-The adapter must not credit collateral without receiving tokens.
-```
+`GemJoin` is the boundary between external ERC20 collateral and internal `Vat` accounting.

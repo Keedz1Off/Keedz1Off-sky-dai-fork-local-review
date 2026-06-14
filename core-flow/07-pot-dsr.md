@@ -36,36 +36,42 @@ function exit(uint wad) external {
 
 `exit(...)` withdraws internal dai from savings.
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### DSR Accumulator Update
 
-```text
-Savings rate accounting must be updated before users join.
+```solidity
+tmp = _rmul(_rpow(dsr, now - rho, ONE), chi);
+chi = tmp;
+rho = now;
 ```
 
-### Main Invariant 2
+This updates the savings accumulator based on time and the DSR rate.
 
-```text
-User pie balance and total Pie must update consistently.
+### Create Internal Dai for Savings Yield
+
+```solidity
+vat.suck(address(vow), address(this), _mul(Pie, chi_));
 ```
 
-### Main Invariant 3
+This creates the accounting effect for DSR yield.
 
-```text
-Vat dai movement must match the chi-adjusted savings amount.
+### Join Savings
+
+```solidity
+pie[msg.sender] = _add(pie[msg.sender], wad);
+Pie             = _add(Pie,             wad);
+vat.move(msg.sender, address(this), _mul(chi, wad));
 ```
 
-## Additional Invariants
+This deposits internal dai into the savings contract.
 
-### Additional Invariant 1
+### Exit Savings
 
-```text
-Drip must not use an invalid timestamp.
+```solidity
+pie[msg.sender] = _sub(pie[msg.sender], wad);
+Pie             = _sub(Pie,             wad);
+vat.move(address(this), msg.sender, _mul(chi, wad));
 ```
 
-### Additional Invariant 2
-
-```text
-Exit must not withdraw more pie than the user has.
-```
+This withdraws internal dai from savings.

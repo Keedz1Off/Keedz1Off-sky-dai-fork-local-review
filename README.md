@@ -2,11 +2,11 @@
 
 This repository is an educational local review template for a Sky / DAI-style fork.
 
-The goal is to review the core accounting flow and prepare a clean base for manual
+The goal is to understand the core accounting architecture before doing manual
 Break Think analysis.
 
 ```text
-Understand the flow -> Define invariants -> Search for violations
+Understand the flow -> understand the accounting -> then do Break Think
 ```
 
 This is not an official audit of Sky, MakerDAO, DAI, USDS, or any production deployment.
@@ -77,40 +77,16 @@ Pot.join(...)
 Pot.exit(...)
 ```
 
-## Main Global Invariants
+## What This Repository Covers
 
 ```text
-Vault debt must be backed by enough collateral.
-```
-
-```text
-ERC20 DAI supply must match Vat internal accounting boundaries.
-```
-
-```text
-Unsafe vaults can be liquidated, safe vaults must not be liquidated.
-```
-
-## Additional Invariants
-
-```text
-Collateral join/exit must match Vat collateral accounting.
-```
-
-```text
-DaiJoin mint/burn must match Vat internal dai movement.
-```
-
-```text
-Rate accrual must update debt consistently.
-```
-
-```text
-Liquidation must not exceed configured global or collateral-specific limits.
-```
-
-```text
-Auction purchase must respect price, remaining debt, and remaining collateral.
+Vault accounting
+Collateral join / exit
+DAI join / exit
+Stability fee accrual
+Liquidation trigger
+Auction purchase
+Savings rate accounting
 ```
 
 ## Repository Structure
@@ -130,9 +106,11 @@ sky-dai-fork-local-review/
     +-- README.md
 ```
 
-## Break Think Format
+## Break Think
 
-The manual analysis should use only:
+The `break-think/` folder is left for manual analysis.
+
+I will use it later to write:
 
 ```text
 INVARIANT

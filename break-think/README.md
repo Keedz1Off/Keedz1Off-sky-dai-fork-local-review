@@ -2,11 +2,7 @@
 
 This folder is for manual Break Think analysis.
 
-Break Think means:
-
-```text
-Invariant -> Consequence
-```
+This file only lists the functions that should be reviewed manually later.
 
 ## Main Functions
 
@@ -24,7 +20,10 @@ Pot.join(...)
 Pot.exit(...)
 ```
 
-## 1 INVARIANT
+## Format For Later
 
+```text
+INVARIANT
 
-## 2 CONSEQUENCES
+CONSEQUENCES
+```

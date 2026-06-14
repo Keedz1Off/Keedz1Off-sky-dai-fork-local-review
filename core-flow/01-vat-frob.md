@@ -47,42 +47,55 @@ It changes:
 - global system debt
 - internal collateral and dai balances
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### Vault State Update
 
-```text
-Vault debt must stay safely collateralized after the operation.
+```solidity
+urn.ink = _add(urn.ink, dink);
+urn.art = _add(urn.art, dart);
+ilk.Art = _add(ilk.Art, dart);
 ```
 
-### Main Invariant 2
+This updates the user's vault collateral and debt.
+
+Simple meaning:
 
 ```text
-Debt ceilings must not be exceeded.
+ink = collateral inside the vault
+art = normalized debt inside the vault
 ```
 
-### Main Invariant 3
+### Debt Calculation
+
+```solidity
+int dtab = _mul(ilk.rate, dart);
+uint tab = _mul(ilk.rate, urn.art);
+debt     = _add(debt, dtab);
+```
+
+This converts normalized debt into real system debt using the current rate.
+
+### Safety Check
+
+```solidity
+require(either(both(dart <= 0, dink >= 0), tab <= _mul(urn.ink, ilk.spot)), "Vat/not-safe");
+```
+
+This is the main collateralization check.
+
+It means:
 
 ```text
-Only authorized users may modify vault collateral or debt.
+if the user increases risk, the vault must still be safe
 ```
 
-## Additional Invariants
+### Permission Checks
 
-### Additional Invariant 1
-
-```text
-The collateral type must be initialized.
+```solidity
+require(either(both(dart <= 0, dink >= 0), wish(u, msg.sender)), "Vat/not-allowed-u");
+require(either(dink <= 0, wish(v, msg.sender)), "Vat/not-allowed-v");
+require(either(dart >= 0, wish(w, msg.sender)), "Vat/not-allowed-w");
 ```
 
-### Additional Invariant 2
-
-```text
-Vault debt must be zero or above the dust limit.
-```
-
-### Additional Invariant 3
-
-```text
-Internal dai and gem accounting must match the vault modification.
-```
+These checks decide who is allowed to modify the vault, use collateral, or receive debt.

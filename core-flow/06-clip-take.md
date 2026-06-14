@@ -62,42 +62,45 @@ This snippet is shortened from the original function to focus on the core purcha
 
 It checks price, calculates how much collateral is bought, transfers collateral to the buyer, collects DAI, and updates liquidation debt.
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### Price Check
 
-```text
-Auction collateral must not be sold below the buyer's max acceptable price.
+```solidity
+require(max >= price, "Clipper/too-expensive");
 ```
 
-### Main Invariant 2
+The buyer defines the maximum acceptable price.
 
-```text
-Collateral sent to the buyer must match the DAI paid.
+### Purchase Calculation
+
+```solidity
+uint256 slice = min(lot, amt);
+owe = mul(slice, price);
 ```
 
-### Main Invariant 3
+This calculates how much collateral is bought and how much DAI is owed.
 
-```text
-Auction debt and collateral balances must be updated consistently after purchase.
+### Send Collateral
+
+```solidity
+vat.flux(ilk, address(this), who, slice);
 ```
 
-## Additional Invariants
+This transfers internal collateral from the auction to the buyer.
 
-### Additional Invariant 1
+### Collect DAI
 
-```text
-Only active auctions can be taken.
+```solidity
+vat.move(msg.sender, vow, owe);
 ```
 
-### Additional Invariant 2
+This transfers internal dai from the buyer to the system surplus/debt accounting contract.
 
-```text
-Unsafe callback targets must not be allowed.
+### Optional Callback
+
+```solidity
+ClipperCallee(who).clipperCall(msg.sender, owe, slice, data);
 ```
 
-### Additional Invariant 3
-
-```text
-The auction must not allow invalid partial purchases.
-```
+If `data` is provided, the buyer contract can execute callback logic during the auction purchase.

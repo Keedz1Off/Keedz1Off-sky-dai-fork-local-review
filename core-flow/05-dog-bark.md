@@ -61,42 +61,47 @@ function bark(bytes32 ilk, address urn, address kpr) external returns (uint256 i
 
 It checks vault safety, calculates how much debt/collateral to liquidate, confiscates it with `vat.grab(...)`, records bad debt, and starts a `Clipper` auction.
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### Unsafe Vault Check
 
-```text
-Only unsafe vaults can be liquidated.
+```solidity
+require(spot > 0 && mul(ink, spot) < mul(art, rate), "Dog/not-unsafe");
 ```
 
-### Main Invariant 2
+This checks whether the vault is unsafe and can be liquidated.
+
+Simple meaning:
 
 ```text
-Liquidation must respect global and collateral-specific liquidation limits.
+collateral value < debt value
 ```
 
-### Main Invariant 3
+### Liquidation Room
 
-```text
-Confiscated collateral and debt must match the auction that is started.
+```solidity
+uint256 room = min(Hole - Dirt, milk.hole - milk.dirt);
 ```
 
-## Additional Invariants
+This calculates how much liquidation capacity is still available.
 
-### Additional Invariant 1
+### Confiscate Vault Position
 
-```text
-Liquidation must not create a null auction.
+```solidity
+vat.grab(ilk, urn, milk.clip, address(vow), -int256(dink), -int256(dart));
 ```
 
-### Additional Invariant 2
+This removes collateral and debt from the unsafe vault and moves them into liquidation accounting.
 
-```text
-Partial liquidation must respect dust rules.
+### Start Auction
+
+```solidity
+id = ClipperLike(milk.clip).kick({
+    tab: tab,
+    lot: dink,
+    usr: urn,
+    kpr: kpr
+});
 ```
 
-### Additional Invariant 3
-
-```text
-The auction must use the correct clipper for the collateral type.
-```
+This starts the collateral auction.

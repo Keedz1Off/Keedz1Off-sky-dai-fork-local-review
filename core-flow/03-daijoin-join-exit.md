@@ -35,42 +35,44 @@ move internal Vat dai to adapter
 mint ERC20 DAI
 ```
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### Join DAI
 
-```text
-ERC20 DAI burn/mint must match internal Vat dai movement.
+```solidity
+vat.move(address(this), usr, mul(ONE, wad));
+dai.burn(msg.sender, wad);
 ```
 
-### Main Invariant 2
+This burns external ERC20 DAI and credits internal Vat dai.
+
+Simple meaning:
 
 ```text
-DaiJoin.exit(...) must not mint DAI without internal Vat dai backing.
+external DAI decreases
+internal Vat dai increases
 ```
 
-### Main Invariant 3
+### Exit DAI
+
+```solidity
+vat.move(msg.sender, address(this), mul(ONE, wad));
+dai.mint(usr, wad);
+```
+
+This moves internal Vat dai into the adapter and mints external ERC20 DAI.
+
+Simple meaning:
 
 ```text
-DaiJoin.join(...) must not credit internal dai without burning ERC20 DAI.
+internal Vat dai decreases
+external DAI increases
 ```
 
-## Additional Invariants
+### Wad / Rad Conversion
 
-### Additional Invariant 1
-
-```text
-Exit must not work when the adapter is not live.
+```solidity
+mul(ONE, wad)
 ```
 
-### Additional Invariant 2
-
-```text
-Wad-to-rad conversion must be correct.
-```
-
-### Additional Invariant 3
-
-```text
-The user receiving minted DAI must be the intended recipient.
-```
+DSS uses higher precision internally. External DAI uses `wad`, internal Vat accounting uses `rad`.

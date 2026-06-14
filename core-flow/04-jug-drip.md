@@ -22,36 +22,34 @@ It increases or updates debt accounting based on:
 - collateral-specific duty
 - time passed since last update
 
-## Invariants
+## Important Logic Notes
 
-### Main Invariant 1
+### Time-Based Rate Update
 
-```text
-Rate accrual must be based on elapsed time since the last update.
+```solidity
+rate = _rmul(_rpow(_add(base, ilks[ilk].duty), now - ilks[ilk].rho, ONE), prev);
 ```
 
-### Main Invariant 2
+This calculates the new accumulated stability fee rate.
+
+Simple meaning:
 
 ```text
-Vat debt accounting must be updated consistently with the new rate.
+old rate + time passed + fee settings = new rate
 ```
 
-### Main Invariant 3
+### Apply Fee to Vat
 
-```text
-The rate timestamp must move forward correctly.
+```solidity
+vat.fold(ilk, vow, _diff(rate, prev));
 ```
 
-## Additional Invariants
+This applies the rate change to Vat accounting and sends the fee effect to `vow`.
 
-### Additional Invariant 1
+### Timestamp Update
 
-```text
-Drip must not use a timestamp older than the previous rho.
+```solidity
+ilks[ilk].rho = now;
 ```
 
-### Additional Invariant 2
-
-```text
-The fee delta must be sent to the correct vow address.
-```
+This records that the collateral type has been updated to the current time.
