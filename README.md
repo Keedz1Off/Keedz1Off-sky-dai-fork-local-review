@@ -1,168 +1,102 @@
-# Sky / DAI Fork Local Review
+# Sky OP Token Bridge Local Review
 
-This repository is an educational local review template for the Sky DSS core flow.
+This repository is an educational local review of the MakerDAO / Sky OP Token Bridge.
 
-The goal is to understand the core accounting architecture before doing manual
-Break Think analysis.
-
-```text
-Understand the flow -> understand the accounting -> then do Break Think
-```
-
-This is not an official audit of Sky, MakerDAO, DAI, USDS, or any production deployment.
-It is a portfolio-style study repository focused on architecture flow and function-level review.
-
-Function names and snippets are based on the official Sky DSS source:
+The goal is to understand the bridge architecture and the main token flow before doing manual Break Think analysis.
 
 ```text
-sky-ecosystem/dss
+Understand the flow -> understand the message path -> then do Break Think
 ```
 
-This repository follows the core DSS contracts, not a frontend or proxy wrapper flow.
+This is not a full production audit. It is a portfolio-style study repository focused on bridge flow, escrow accounting, mint/burn logic, cross-chain messages, and auth boundaries.
 
-## Core Model
-
-Sky / DAI-style systems are based on internal accounting inside `Vat`.
-
-Important idea:
+Function code snippets are based on:
 
 ```text
-Vat is the internal accounting engine.
-GemJoin and DaiJoin are adapters between external ERC20 tokens and Vat balances.
+makerdao/op-token-bridge
 ```
 
-Collateral deposit flow:
+## Bridge Model
+
+This bridge is a custom bridge to an OP Stack L2.
+
+Main contracts:
+
+```text
+L1TokenBridge.sol = L1 side of the bridge
+L2TokenBridge.sol = L2 side of the bridge
+Escrow.sol        = L1 token escrow
+```
+
+## Deposit Flow: L1 -> L2
 
 ```mermaid
 flowchart TD
-    A["User has external collateral token"] --> B["GemJoin.join(...)"]
-    B --> C["GemJoin pulls ERC20 collateral"]
-    C --> D["Vat.slip(...) credits internal gem balance"]
+    A["User on L1"] --> B["L1TokenBridge.bridgeERC20(...) / bridgeERC20To(...)"]
+    B --> C["L1TokenBridge._initiateBridgeERC20(...)"]
+    C --> D["transferFrom(user, escrow, amount)"]
+    D --> E["messenger.sendMessage(...)"]
+    E --> F["L2 messenger relays message"]
+    F --> G["L2TokenBridge.finalizeBridgeERC20(...)"]
+    G --> H["mint(to, amount)"]
 ```
 
-Open / modify vault flow:
+Simple meaning:
+
+```text
+L1 tokens are locked in Escrow.
+L2 tokens are minted to the recipient.
+```
+
+## Withdrawal Flow: L2 -> L1
 
 ```mermaid
 flowchart TD
-    A["User has internal collateral balance"] --> B["Vat.frob(...)"]
-    B --> C["Increase ink / collateral in vault"]
-    B --> D["Increase or decrease art / normalized debt"]
-    D --> E["Vat internal dai balance changes"]
+    A["User on L2"] --> B["L2TokenBridge.bridgeERC20(...) / bridgeERC20To(...)"]
+    B --> C["L2TokenBridge._initiateBridgeERC20(...)"]
+    C --> D["burn(user, amount)"]
+    D --> E["messenger.sendMessage(...)"]
+    E --> F["Withdrawal is proven/finalized after OP delay"]
+    F --> G["L1TokenBridge.finalizeBridgeERC20(...)"]
+    G --> H["transferFrom(escrow, to, amount)"]
 ```
 
-Draw external DAI flow:
+Simple meaning:
 
-```mermaid
-flowchart TD
-    A["User has internal Vat dai"] --> B["DaiJoin.exit(...)"]
-    B --> C["Vat.move(...) moves internal dai to DaiJoin"]
-    C --> D["DaiJoin mints external ERC20 DAI"]
-    D --> E["User receives ERC20 DAI"]
-```
-
-Repay debt and withdraw collateral flow:
-
-```mermaid
-flowchart TD
-    A["User has external ERC20 DAI"] --> B["DaiJoin.join(...)"]
-    B --> C["DaiJoin burns ERC20 DAI"]
-    C --> D["Vat internal dai balance increases"]
-    D --> E["Vat.frob(...) repays debt / frees collateral"]
-    E --> F["GemJoin.exit(...)"]
-    F --> G["User receives external collateral"]
-```
-
-Liquidation flow:
-
-```mermaid
-flowchart TD
-    A["Unsafe vault"] --> B["Dog.bark(...)"]
-    B --> C["Vat.grab(...) confiscates collateral/debt"]
-    C --> D["Clip.kick(...) starts auction"]
-    D --> E["Clip.take(...) sells collateral"]
-```
-
-Rate / oracle flow:
-
-```mermaid
-flowchart TD
-    A["Oracle price"] --> B["Spot.poke(...)"]
-    B --> C["Vat spot price updated"]
-    D["Time passes"] --> E["Jug.drip(...)"]
-    E --> F["Vat.fold(...) updates accumulated debt rate"]
-```
-
-DSR flow:
-
-```mermaid
-flowchart TD
-    A["User has internal Vat dai"] --> B["Pot.join(...)"]
-    B --> C["Savings pie balance increases"]
-    D["Time passes"] --> E["Pot.drip(...)"]
-    E --> F["chi accumulator updates"]
-    F --> G["Pot.exit(...) withdraws internal dai"]
+```text
+L2 tokens are burned.
+L1 tokens are released from Escrow.
 ```
 
 ## Core Functions Reviewed
 
-## Official Source Map
+### Deposit Functions
 
 ```text
-src/vat.sol   -> Vat.frob, Vat.slip, Vat.flux, Vat.move, Vat.grab, Vat.suck, Vat.fold
-src/join.sol  -> GemJoin.join, GemJoin.exit, DaiJoin.join, DaiJoin.exit
-src/jug.sol   -> Jug.drip
-src/spot.sol  -> Spot.poke
-src/dog.sol   -> Dog.bark
-src/clip.sol  -> Clip.take
-src/pot.sol   -> Pot.drip, Pot.join, Pot.exit
-src/vow.sol   -> Vow.flog, Vow.heal, Vow.flop, Vow.flap
+L1TokenBridge.bridgeERC20(...)
+L1TokenBridge.bridgeERC20To(...)
+L1TokenBridge._initiateBridgeERC20(...)
+L2TokenBridge.finalizeBridgeERC20(...)
 ```
 
-### Main Vault / Accounting Functions
+### Withdrawal Functions
 
 ```text
-Vat.frob(...)
-Vat.slip(...)
-Vat.flux(...)
-Vat.move(...)
-Vat.grab(...)
-Vat.suck(...)
-Vat.fold(...)
-GemJoin.join(...)
-GemJoin.exit(...)
-DaiJoin.join(...)
-DaiJoin.exit(...)
+L2TokenBridge.bridgeERC20(...)
+L2TokenBridge.bridgeERC20To(...)
+L2TokenBridge._initiateBridgeERC20(...)
+L1TokenBridge.finalizeBridgeERC20(...)
 ```
 
-### Main Rate / Liquidation Functions
+### Admin / Escrow Functions
 
 ```text
-Spot.poke(...)
-Jug.drip(...)
-Dog.bark(...)
-Clip.take(...)
-Pot.drip(...)
-Pot.join(...)
-Pot.exit(...)
-Vow.flog(...)
-Vow.heal(...)
-Vow.flop(...)
-Vow.flap(...)
-```
-
-## What This Repository Covers
-
-```text
-Vault accounting
-Vat balance movement
-Oracle price update
-Collateral join / exit
-DAI join / exit
-Stability fee accrual
-Liquidation trigger
-Auction purchase
-Savings rate accounting
-Surplus and debt accounting
+Escrow.approve(...)
+L1TokenBridge.registerToken(...)
+L2TokenBridge.registerToken(...)
+L2TokenBridge.setMaxWithdraw(...)
+L1TokenBridge.close(...)
+L2TokenBridge.close(...)
 ```
 
 ## Repository Structure
@@ -170,19 +104,19 @@ Surplus and debt accounting
 ```text
 sky-dai-fork-local-review/
 +-- README.md
-+-- core-flow/
-|   +-- 00-dss-flow-overview.md
-|   +-- 01-vat-frob.md
-|   +-- 02-gemjoin-join-exit.md
-|   +-- 03-daijoin-join-exit.md
-|   +-- 04-jug-drip.md
-|   +-- 05-dog-bark.md
-|   +-- 06-clip-take.md
-|   +-- 07-pot-dsr.md
-|   +-- 08-vat-balance-movement.md
-|   +-- 09-vat-grab-suck-fold.md
-|   +-- 10-spot-poke.md
-|   +-- 11-vow-surplus-debt.md
++-- deposit-flow/
+|   +-- 00-deposit-flow.md
+|   +-- 01-l1-bridgeERC20.md
+|   +-- 02-l1-initiateBridgeERC20.md
+|   +-- 03-l2-finalizeBridgeERC20.md
++-- withdrawal-flow/
+|   +-- 00-withdrawal-flow.md
+|   +-- 01-l2-bridgeERC20.md
+|   +-- 02-l2-initiateBridgeERC20.md
+|   +-- 03-l1-finalizeBridgeERC20.md
++-- admin-flow/
+|   +-- 01-escrow-approve.md
+|   +-- 02-token-admin.md
 +-- break-think/
     +-- README.md
 ```
@@ -191,9 +125,10 @@ sky-dai-fork-local-review/
 
 The `break-think/` folder is left for manual analysis.
 
-I will use it later to write:
+Format:
 
 ```text
 INVARIANT
+
 CONSEQUENCES
 ```
