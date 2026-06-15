@@ -52,12 +52,10 @@ If the wrong spender is approved, the escrow can become unsafe.
 
 ```text
 1. Only authorized governance/admin can approve token spending from Escrow.
-2. Escrow approval must be given only to the correct bridge/spender.
 ```
 
 ## Additional Invariants / Checks
 
 ```text
-The approved token must be the intended L1 token.
-The approved value must match the intended bridge configuration.
+Access control is the main check for this admin function.
 ```

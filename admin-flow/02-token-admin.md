@@ -69,14 +69,10 @@ Old in-flight messages may still need to finish.
 
 ```text
 1. Only authorized governance/admin can change bridge configuration.
-2. Token mapping must connect the correct L1 token with the correct L2 token.
-3. Admin configuration must not break escrow release or mint/burn flow.
 ```
 
 ## Additional Invariants / Checks
 
 ```text
-maxWithdraw should be set to the intended limit.
-close() should only stop new outbound messages.
-rely(...) and deny(...) should only be controlled by authorized governance/admin.
+Access control is the main check for these admin functions.
 ```
