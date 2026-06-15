@@ -121,3 +121,18 @@ messenger.sendMessage({
 
 This sends the deposit message to the L2 bridge through the OP messenger.
 
+## Main Invariants
+
+```text
+1. L1 escrowed amount must equal L2 minted amount.
+2. The L1 token must map to the correct L2 token.
+3. The deposit message must target the correct L2 bridge.
+```
+
+## Additional Invariants / Checks
+
+```text
+The bridge must be open before sending a new message.
+The recipient must be the intended recipient.
+The encoded calldata must match the real L1 deposit.
+```

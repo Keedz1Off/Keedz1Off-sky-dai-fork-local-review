@@ -71,3 +71,16 @@ This moves execution into the core deposit logic.
 
 The real lock and message creation happen inside `_initiateBridgeERC20(...)`.
 
+## Main Invariants
+
+```text
+1. The deposit must route into the correct internal deposit function.
+2. The intended recipient must be preserved.
+```
+
+## Additional Invariants / Checks
+
+```text
+bridgeERC20(...) is intended for EOA sender -> same recipient deposits.
+bridgeERC20To(...) is intended for custom recipient deposits.
+```

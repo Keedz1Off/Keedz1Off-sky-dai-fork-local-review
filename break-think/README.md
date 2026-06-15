@@ -4,6 +4,21 @@ This folder is for manual Break Think analysis.
 
 This file only lists the functions that should be reviewed manually later.
 
+## Break Think Focus
+
+```text
+Main Invariants are the main focus here.
+Additional Invariants / Checks are kept in the flow notes and function explanations.
+```
+
+Simple meaning:
+
+```text
+Break Think = what happens if a core bridge invariant breaks.
+```
+
+Additional checks are still useful, but I do not treat every small check as a full Break Think item.
+
 ## Main Deposit Functions
 
 ```text
@@ -39,4 +54,30 @@ L2TokenBridge.close(...)
 INVARIANT
 
 CONSEQUENCES
+```
+
+## Main Deposit Invariants
+
+```text
+L1 escrowed amount must equal L2 minted amount.
+Only an authentic L1 -> L2 message can mint L2 tokens.
+The L1 token must map to the correct L2 token.
+```
+
+## Main Withdrawal Invariants
+
+```text
+L2 burned amount must equal L1 released amount.
+Only an authentic L2 -> L1 message can release L1 tokens.
+The L2 token must map to the correct L1 token.
+```
+
+## Additional Checks
+
+```text
+Bridge must be open.
+Recipient must be the intended recipient.
+Withdrawal amount must not exceed maxWithdraw.
+Escrow approval must be given only to the correct bridge.
+Only authorized governance/admin can call admin functions.
 ```

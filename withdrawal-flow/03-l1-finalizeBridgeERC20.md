@@ -62,3 +62,18 @@ Simple meaning:
 escrow -> user
 ```
 
+## Main Invariants
+
+```text
+1. Only an authentic L2 -> L1 message can release L1 tokens.
+2. Released amount must equal the L2 burned amount.
+3. Released token must be the correct L1 token for the L2 token.
+```
+
+## Additional Invariants / Checks
+
+```text
+The recipient must be the intended recipient.
+The finalize call must come through onlyOtherBridge.
+Escrow must approve the bridge to transfer the token.
+```

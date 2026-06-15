@@ -10,6 +10,19 @@ Understand the flow -> understand the message path -> then do Break Think
 
 This is not a full production audit. It is a portfolio-style study repository focused on bridge flow, escrow accounting, mint/burn logic, cross-chain messages, and auth boundaries.
 
+## Invariant Method
+
+This repository separates invariants into two groups.
+
+```text
+Main Invariants = the core security rules of the bridge flow.
+Additional Invariants / Checks = smaller function-level checks used to understand the architecture.
+```
+
+Break Think is focused mostly on the Main Invariants.
+
+Additional checks are kept in the flow explanation, but they are not the main focus of the manual Break Think section.
+
 Function code snippets are based on:
 
 ```text
@@ -48,6 +61,22 @@ L1 tokens are locked in Escrow.
 L2 tokens are minted to the recipient.
 ```
 
+Main deposit invariants:
+
+```text
+L1 escrowed amount must equal L2 minted amount.
+Only an authentic L1 -> L2 message can mint L2 tokens.
+The L1 token must map to the correct L2 token.
+```
+
+Additional deposit checks:
+
+```text
+The bridge must be open.
+The recipient must be the intended recipient.
+The message must target the correct L2 bridge.
+```
+
 ## Withdrawal Flow: L2 -> L1
 
 ```mermaid
@@ -66,6 +95,22 @@ Simple meaning:
 ```text
 L2 tokens are burned.
 L1 tokens are released from Escrow.
+```
+
+Main withdrawal invariants:
+
+```text
+L2 burned amount must equal L1 released amount.
+Only an authentic L2 -> L1 message can release L1 tokens.
+The L2 token must map to the correct L1 token.
+```
+
+Additional withdrawal checks:
+
+```text
+The bridge must be open.
+The withdrawal amount must not exceed maxWithdraw.
+The recipient must be the intended recipient.
 ```
 
 ## Core Functions Reviewed

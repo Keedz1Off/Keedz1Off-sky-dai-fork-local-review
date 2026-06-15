@@ -62,3 +62,18 @@ Simple meaning:
 locked on L1 -> minted on L2
 ```
 
+## Main Invariants
+
+```text
+1. Only an authentic L1 -> L2 message can mint L2 tokens.
+2. Minted amount must equal the L1 escrowed amount.
+3. Minted token must be the correct L2 token for the L1 token.
+```
+
+## Additional Invariants / Checks
+
+```text
+The recipient must be the intended recipient.
+The finalize call must come through onlyOtherBridge.
+The emitted event should match the finalized transfer.
+```

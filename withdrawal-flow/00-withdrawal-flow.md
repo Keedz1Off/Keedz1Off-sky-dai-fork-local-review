@@ -30,6 +30,28 @@ L1 tokens are released from Escrow.
 L2 burned amount = L1 released amount
 ```
 
+## Main Invariants
+
+```text
+1. L2 burned amount must equal L1 released amount.
+2. Only an authentic L2 -> L1 message can release L1 tokens.
+3. The L2 token must map to the correct L1 token.
+```
+
+## Additional Invariants / Checks
+
+These are smaller architecture checks.
+
+I keep them in the flow notes, but Break Think focuses mostly on the Main Invariants.
+
+```text
+The bridge must be open before creating a new message.
+The withdrawal amount must not exceed maxWithdraw.
+The recipient must be the intended recipient.
+The message must target the correct L1 bridge.
+The encoded amount must match the burned amount.
+```
+
 ## Main Functions
 
 ```text
@@ -46,4 +68,3 @@ src/L2TokenBridge.sol
 src/L1TokenBridge.sol
 src/Escrow.sol
 ```
-

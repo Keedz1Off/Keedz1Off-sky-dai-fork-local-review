@@ -113,3 +113,19 @@ This creates calldata for the L1 bridge.
 
 The L1 bridge will later release tokens from escrow.
 
+## Main Invariants
+
+```text
+1. L2 burned amount must equal L1 released amount.
+2. The L2 token must map to the correct L1 token.
+3. The withdrawal message must be created only after the burn step.
+```
+
+## Additional Invariants / Checks
+
+```text
+The bridge must be open before sending a new message.
+The withdrawal amount must not exceed maxWithdraw.
+The recipient must be the intended recipient.
+The encoded calldata must match the real L2 burn.
+```

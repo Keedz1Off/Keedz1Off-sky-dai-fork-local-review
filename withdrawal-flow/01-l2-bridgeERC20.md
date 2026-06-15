@@ -66,3 +66,16 @@ This moves execution into the core withdrawal logic.
 
 The burn and message creation happen inside `_initiateBridgeERC20(...)`.
 
+## Main Invariants
+
+```text
+1. The withdrawal must route into the correct internal withdrawal function.
+2. The intended L1 recipient must be preserved.
+```
+
+## Additional Invariants / Checks
+
+```text
+bridgeERC20(...) is intended for EOA sender -> same recipient withdrawals.
+bridgeERC20To(...) is intended for custom recipient withdrawals.
+```
