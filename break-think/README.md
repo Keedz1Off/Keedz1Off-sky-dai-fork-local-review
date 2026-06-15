@@ -4,6 +4,14 @@ This folder is for manual Break Think analysis.
 
 This file only lists the functions that should be reviewed manually later.
 
+## Files
+
+```text
+deposit-break-think.md
+withdrawal-break-think.md
+admin-break-think.md
+```
+
 ## Break Think Focus
 
 ```text
