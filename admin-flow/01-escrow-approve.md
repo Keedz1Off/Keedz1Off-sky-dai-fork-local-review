@@ -46,16 +46,8 @@ GemLike(token).approve(spender, value);
 
 This sets ERC20 allowance from Escrow to the spender.
 
-If the wrong spender is approved, the escrow can become unsafe.
-
 ## Main Invariants
 
 ```text
 1. Only authorized governance/admin can approve token spending from Escrow.
-```
-
-## Additional Invariants / Checks
-
-```text
-Access control is the main check for this admin function.
 ```

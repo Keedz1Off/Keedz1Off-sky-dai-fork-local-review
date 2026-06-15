@@ -70,9 +70,3 @@ Old in-flight messages may still need to finish.
 ```text
 1. Only authorized governance/admin can change bridge configuration.
 ```
-
-## Additional Invariants / Checks
-
-```text
-Access control is the main check for these admin functions.
-```
