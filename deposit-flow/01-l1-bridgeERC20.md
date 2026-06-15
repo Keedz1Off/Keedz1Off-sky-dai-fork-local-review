@@ -25,6 +25,10 @@ function bridgeERC20To(
     _initiateBridgeERC20(_localToken, _remoteToken, _to, _amount, _minGasLimit, _extraData);
 }
 ```
+bridgeERC20()
+
+
+ bridgeERC20To()
 
 Note:
 
