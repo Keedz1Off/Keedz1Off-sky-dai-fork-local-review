@@ -25,10 +25,9 @@ function bridgeERC20To(
     _initiateBridgeERC20(_localToken, _remoteToken, _to, _amount, _minGasLimit, _extraData);
 }
 ```
-bridgeERC20()
 
+## Graphical exemple: <img width="811" height="303" alt="image" src="https://github.com/user-attachments/assets/54af9c15-ebc6-44b1-9fe4-fa1a7811c966" />
 
- bridgeERC20To()
 
 Note:
 
