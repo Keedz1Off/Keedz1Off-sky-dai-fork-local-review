@@ -5,19 +5,10 @@
 ```text
 INVARIANT
 
-
 CONSEQUENCES
 
+1.  L1 tokens will be sent to Escrow or L1 tokens may be minted to the wrong recipient.
 
-```
-
-## L1TokenBridge.bridgeERC20To(...)
-
-```text
-INVARIANT
-
-
-CONSEQUENCES
 
 
 ```
