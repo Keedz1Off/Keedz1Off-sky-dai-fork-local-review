@@ -5,12 +5,9 @@
 ```text
 INVARIANT
 1. The intended recipient must be preserved.
-2. Only wallet can call this function
 CONSEQUENCES
 
 1.  L1 tokens will be sent to Escrow and may become stuck or L1 tokens may be minted to the wrong recipient.
-
-2. Any smart contract can call this function
 ```
 
 ## L1TokenBridge.bridgeERC20To(...)
