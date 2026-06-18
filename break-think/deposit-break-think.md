@@ -17,7 +17,7 @@ INVARIANT
 The custom recipient must be preserved.
 
 CONSEQUENCES
-
+ L1 tokens will be sent to Escrow and may become stuck or L1 tokens may be minted to the wrong recipient.
 
 ```
 
